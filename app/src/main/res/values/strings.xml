@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DevStreePra</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="api_key">AIzaSyBSNyp6GQnnKlrMr7hD2HGiyF365tFlK5U</string>
+    <string name="title_activity_maps2">MapsActivity2</string>
+    <string name="title_activity_maps3">MapsActivity3</string>
+</resources>
