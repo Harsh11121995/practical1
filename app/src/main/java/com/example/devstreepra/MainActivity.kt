@@ -73,8 +73,8 @@ class MainActivity : AppCompatActivity(), OnItemClickListenerData {
 
     private fun initAutoCompleteTextView() {
         autoCompleteTextView = findViewById<View>(R.id.auto) as AutoCompleteTextView
-        autoCompleteTextView?.setThreshold(1)
-        autoCompleteTextView?.setOnItemClickListener(autocompleteClickListener)
+        autoCompleteTextView?.threshold = 1
+        autoCompleteTextView?.onItemClickListener = autocompleteClickListener
         adapter = AutoCompleteAdapter(this, placesClient)
         autoCompleteTextView?.setAdapter(adapter)
     }
@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListenerData {
 
                 //                To specify which data types to return, pass an array of Place.Fields in your FetchPlaceRequest
                 //                Use only those fields which are required.
-                val placeFields: List<Place.Field> = Arrays.asList(
+                val placeFields: List<Place.Field> = listOf(
                     Place.Field.ID,
                     Place.Field.NAME,
                     Place.Field.ADDRESS,
@@ -103,13 +103,11 @@ class MainActivity : AppCompatActivity(), OnItemClickListenerData {
                 }
                 if (request != null) {
                     placesClient!!.fetchPlace(request)
-                        .addOnSuccessListener(OnSuccessListener<FetchPlaceResponse> { task ->
-                            responseView.setText(
-                                """
-                            ${task.place.name}
-                            ${task.place.address}
-                            """.trimIndent()
-                            )
+                        .addOnSuccessListener { task ->
+                            responseView.text = """
+                                                    ${task.place.name}
+                                                    ${task.place.address}
+                                                    """.trimIndent()
 
                             val intent = Intent(this, MapsActivity::class.java)
                             intent.putExtra("latitude", task.place.latLng.latitude.toString())
@@ -117,10 +115,10 @@ class MainActivity : AppCompatActivity(), OnItemClickListenerData {
                             intent.putExtra("name", task.place.name)
                             intent.putExtra("address", task.place.address)
                             startActivity(intent)
-                        }).addOnFailureListener(
+                        }.addOnFailureListener(
                             OnFailureListener { e ->
                                 e.printStackTrace()
-                                responseView.setText(e.message)
+                                responseView.text = e.message
                             })
                 }
             } catch (e: Exception) {

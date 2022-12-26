@@ -29,8 +29,7 @@ class RouteMapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private lateinit var mMap: GoogleMap
         private var originLatitude: Double = 28.5021359
         private var originLongitude: Double = 77.4054901
-        private var destinationLatitude: Double = 28.5151087
-        private var destinationLongitude: Double = 77.3932163
+
 
 
 
@@ -54,12 +53,6 @@ class RouteMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mapFragment.getMapAsync(this)
 
 
-
-////            val gd = findViewById<Button>(R.id.directions)
-//            gd.setOnClickListener{
-//
-//            }
-
             mapFragment.getMapAsync {
                 mMap = it
 
@@ -80,15 +73,6 @@ class RouteMapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         GetDirection(urll).execute()
                     }
                 }
-
-
-//                val originLocation = LatLng(originLatitude, originLongitude)
-//                mMap.addMarker(MarkerOptions().position(originLocation))
-//                val destinationLocation = LatLng(destinationLatitude, destinationLongitude)
-//                mMap.addMarker(MarkerOptions().position(destinationLocation))
-//                val urll = getDirectionURL(originLocation, destinationLocation, apiKey)
-//                GetDirection(urll).execute()
-//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(originLocation, 14F))
             }
 
         }
@@ -138,10 +122,9 @@ class RouteMapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(p0: GoogleMap) {
         mMap = p0!!
-        val originLocation = LatLng(originLatitude, originLongitude)
+//        val originLocation = LatLng(originLatitude, originLongitude)
         mMap.clear()
-//        mMap.addMarker(MarkerOptions().position(originLocation))
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(originLocation, 18F))
+//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(originLocation, 18F))
     }
 
     fun decodePolyline(encoded: String): List<LatLng> {
