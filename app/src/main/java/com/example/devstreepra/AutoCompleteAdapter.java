@@ -72,17 +72,10 @@ public class AutoCompleteAdapter extends ArrayAdapter<AutocompletePrediction> im
             protected FilterResults performFiltering(CharSequence charSequence) {
 
                 FilterResults results = new FilterResults();
-
-                // We need a separate list to store the results, since
-                // this is run asynchronously.
                 List<AutocompletePrediction> filterData = new ArrayList<>();
-
-                // Skip the autocomplete query if no constraints are given.
                 if (charSequence != null) {
-                    // Query the autocomplete API for the (constraint) search string.
                     filterData = getAutocomplete(charSequence);
                 }
-
                 results.values = filterData;
                 if (filterData != null) {
                     results.count = filterData.size();
@@ -113,8 +106,6 @@ public class AutoCompleteAdapter extends ArrayAdapter<AutocompletePrediction> im
 
             @Override
             public CharSequence convertResultToString(Object resultValue) {
-                // Override this method to display a readable result in the AutocompleteTextView
-                // when clicked.
                 if (resultValue instanceof AutocompletePrediction) {
                     return ((AutocompletePrediction) resultValue).getFullText(null);
                 } else {
@@ -125,19 +116,12 @@ public class AutoCompleteAdapter extends ArrayAdapter<AutocompletePrediction> im
     }
 
     private List<AutocompletePrediction> getAutocomplete(CharSequence constraint) {
-
-        //Create a RectangularBounds object.
-        RectangularBounds bounds = RectangularBounds.newInstance(
-                new LatLng(-33.880490, 151.184363),
-                new LatLng(-33.858754, 151.229596));
-
-
         final FindAutocompletePredictionsRequest.Builder requestBuilder =
                 FindAutocompletePredictionsRequest.builder()
                         .setQuery(constraint.toString())
                         .setCountry("") //Use only in specific country
                         // Call either setLocationBias() OR setLocationRestriction().
-                        .setLocationBias(bounds)
+//                        .setLocationBias(bounds)
 //                        .setLocationRestriction(bounds)
                         .setSessionToken(AutocompleteSessionToken.newInstance())
                         .setTypeFilter(TypeFilter.ADDRESS);

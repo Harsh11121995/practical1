@@ -1,7 +1,5 @@
 package com.example.devstreepra
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -17,13 +15,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import java.util.*
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -31,18 +27,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
 
-    var autoCompleteTextView: AutoCompleteTextView? = null
-    lateinit var adapter: AutoCompleteAdapter
-    lateinit var responseView: TextView
-    var placesClient: PlacesClient? = null
+    private var autoCompleteTextView: AutoCompleteTextView? = null
+    private lateinit var adapter: AutoCompleteAdapter
+    private lateinit var responseView: TextView
+    private var placesClient: PlacesClient? = null
 
-    var name = ""
-    var address = ""
-    var latitude = ""
-    var longitude = ""
+    private var name = ""
+    private var address = ""
+    private var latitude = ""
+    private var longitude = ""
 
     private var isEdit: Boolean = false
-    var savedTask: Task? = null
+    private var savedTask: Task? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +50,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val apiKey = getString(R.string.api_key)
         // Setup Places Client
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), apiKey);
+            Places.initialize(applicationContext, apiKey)
         }
 
         placesClient = Places.createClient(this)
@@ -71,29 +67,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
             mapFragment.getMapAsync(this)
-
-
         }
-
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
-
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
         val sydney = LatLng(latitude.toDouble(), longitude.toDouble())
         mMap.addMarker(MarkerOptions().position(sydney))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
@@ -101,7 +80,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    fun showDialog() {
+    private fun showDialog() {
         val builder1: android.app.AlertDialog.Builder = android.app.AlertDialog.Builder(this)
         builder1.setMessage("Save Your Data")
         builder1.setCancelable(false)
@@ -109,14 +88,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (isEdit) {
             builder1.setPositiveButton(
                 "Update"
-            ) { dialog, id ->
+            ) { dialog, _ ->
                 updateData()
                 dialog.dismiss()
             }
         } else {
             builder1.setPositiveButton(
                 "Save"
-            ) { dialog, id ->
+            ) { dialog, _ ->
                 saveData()
                 dialog.dismiss()
             }
@@ -124,14 +103,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         builder1.setNegativeButton(
-            "No",
-            DialogInterface.OnClickListener { dialog, id -> dialog.cancel() })
+            "No"
+        ) { dialog, _ -> dialog.cancel() }
 
         val alert11: android.app.AlertDialog? = builder1.create()
         alert11!!.show()
     }
 
-    fun saveData() {
+    private fun saveData() {
         Thread {
             //creating a task
             val task = Task()
@@ -140,17 +119,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             task.latitude = latitude
             task.longitude = longitude
 
-            //adding to database
 
             //adding to database
-            DatabaseClient.getInstance(applicationContext).getAppDatabase()
+            DatabaseClient.getInstance(applicationContext).appDatabase
                 .taskDao()
                 .insert(task)
 
         }.start()
 
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        finish()
     }
 
     private fun updateData() {
@@ -166,31 +143,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .taskDao()
                 .update(savedTask!!)
         }.start()
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        finish()
 
     }
 
     private fun initAutoCompleteTextView() {
         autoCompleteTextView = findViewById<View>(R.id.auto) as AutoCompleteTextView
-        autoCompleteTextView?.setThreshold(1)
-        autoCompleteTextView?.setOnItemClickListener(autocompleteClickListener)
+        autoCompleteTextView?.threshold = 1
+        autoCompleteTextView?.onItemClickListener = autocompleteClickListener
         adapter = AutoCompleteAdapter(this, placesClient)
         autoCompleteTextView?.setAdapter(adapter)
     }
 
     private val autocompleteClickListener =
-        AdapterView.OnItemClickListener { adapterView, view, i, l ->
+        AdapterView.OnItemClickListener { _, _, i, _ ->
             try {
                 val item: AutocompletePrediction = adapter.getItem(i)!!
-                var placeID: String? = null
-                if (item != null) {
-                    placeID = item.placeId
-                }
+                val placeID: String? = item.placeId
 
-                //                To specify which data types to return, pass an array of Place.Fields in your FetchPlaceRequest
-                //                Use only those fields which are required.
-                val placeFields: List<Place.Field> = Arrays.asList(
+                val placeFields: List<Place.Field> = listOf(
                     Place.Field.ID,
                     Place.Field.NAME,
                     Place.Field.ADDRESS,
@@ -205,10 +176,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     placesClient!!.fetchPlace(request)
                         .addOnSuccessListener { task ->
 
-                            name = task.place.name
-                            address = task.place.address
-                            latitude = task.place.latLng.latitude.toString()
-                            longitude = task.place.latLng.longitude.toString()
+                            name = task.place.name as String
+                            address = task.place.address as String
+                            latitude = task.place.latLng?.latitude.toString()
+                            longitude = task.place.latLng?.longitude.toString()
 
 
                             val mapFragment = supportFragmentManager
@@ -216,11 +187,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                             mapFragment.getMapAsync(this)
 
                             showDialog()
-                        }.addOnFailureListener(
-                            OnFailureListener { e ->
-                                e.printStackTrace()
-                                responseView.setText(e.message)
-                            })
+                        }.addOnFailureListener { e ->
+                            e.printStackTrace()
+                            responseView.text = e.message
+                        }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
